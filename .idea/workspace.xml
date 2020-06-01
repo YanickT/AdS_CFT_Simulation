@@ -29,6 +29,11 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="PREVIEW_PUSH_ON_COMMIT_AND_PUSH" value="false" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
   <component name="JsFlowSettings">
     <service-enabled>true</service-enabled>
     <exe-path />
@@ -36,14 +41,19 @@
     <auto-save>true</auto-save>
   </component>
   <component name="ProjectId" id="1aaqUe7vYwRNBFE3Bg3VGcWGPId" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.editor" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\GitHub\AdS_CFT_Simulation" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\GitHub\AdS_CFT_Simulation\other" />
+      <recent name="D:\GitHub\AdS_CFT_Simulation\normal" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -58,8 +68,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.main2">
-    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.triangle_geometry_other">
+    <configuration name="main_fast_reduced (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="AdS_CFT_Simulation" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -67,12 +77,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/other" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/other/main_fast_reduced.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -81,7 +91,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="main2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="python_version" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="AdS_CFT_Simulation" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -94,7 +104,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main2.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_version.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -103,7 +113,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="square_geometry" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="AdS_CFT_Simulation" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -116,7 +126,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/square_geometry.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -125,7 +135,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_uniformity_of_fastrand" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="triangle_geometry" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="AdS_CFT_Simulation" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -138,7 +148,29 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test_uniformity_of_fastrand.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/triangle_geometry.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="triangle_geometry_other" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="AdS_CFT_Simulation" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/triangle_geometry_other.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -149,10 +181,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.main2" />
-        <item itemvalue="Python.main" />
-        <item itemvalue="Python.test" />
-        <item itemvalue="Python.test_uniformity_of_fastrand" />
+        <item itemvalue="Python.triangle_geometry_other" />
+        <item itemvalue="Python.triangle_geometry" />
+        <item itemvalue="Python.square_geometry" />
+        <item itemvalue="Python.main_fast_reduced (1)" />
+        <item itemvalue="Python.python_version" />
       </list>
     </recent_temporary>
   </component>
@@ -183,16 +216,66 @@
       <workItem from="1587329553905" duration="1056000" />
       <workItem from="1587378345245" duration="3618000" />
       <workItem from="1587399297791" duration="3368000" />
+      <workItem from="1587749666772" duration="9286000" />
+      <workItem from="1587802525714" duration="1084000" />
+      <workItem from="1587844481864" duration="687000" />
+      <workItem from="1587887023996" duration="147000" />
+      <workItem from="1588083564333" duration="1217000" />
+      <workItem from="1588260458535" duration="695000" />
+      <workItem from="1588278193144" duration="2253000" />
+      <workItem from="1588348142993" duration="3158000" />
+      <workItem from="1588351830067" duration="985000" />
+      <workItem from="1588359883067" duration="573000" />
+      <workItem from="1588361289057" duration="155000" />
+      <workItem from="1588412095753" duration="3506000" />
+      <workItem from="1588512668411" duration="2341000" />
+      <workItem from="1588521043821" duration="2815000" />
+      <workItem from="1588529200688" duration="251000" />
+      <workItem from="1588535230381" duration="124000" />
+      <workItem from="1588662402570" duration="3116000" />
+      <workItem from="1588670933634" duration="140000" />
+      <workItem from="1588671459545" duration="4082000" />
+      <workItem from="1588676720567" duration="190000" />
+      <workItem from="1588797454173" duration="441000" />
+      <workItem from="1588862770845" duration="6349000" />
+      <workItem from="1588931009310" duration="302000" />
+      <workItem from="1589186841017" duration="1274000" />
+      <workItem from="1589358278224" duration="539000" />
+      <workItem from="1589398946664" duration="4161000" />
+      <workItem from="1589444792449" duration="7539000" />
+      <workItem from="1589649845398" duration="173000" />
+      <workItem from="1591006466111" duration="1433000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$main2.coverage" NAME="main2 Coverage Results" MODIFIED="1587405701367" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$main.coverage" NAME="main Coverage Results" MODIFIED="1587146357023" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$main_fast.coverage" NAME="main_fast Coverage Results" MODIFIED="1587753827433" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$triangle_geometry.coverage" NAME="triangle_geometry Coverage Results" MODIFIED="1589401347853" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$square_geometry.coverage" NAME="square_geometry Coverage Results" MODIFIED="1589187537743" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$triangle_geometry_other.coverage" NAME="triangle_geometry_other Coverage Results" MODIFIED="1589453198519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$python_version.coverage" NAME="python_version Coverage Results" MODIFIED="1588670426623" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$main_fast__1_.coverage" NAME="main_fast (1) Coverage Results" MODIFIED="1588412593030" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/normal" />
     <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$test_uniformity_of_fastrand.coverage" NAME="test_uniformity_of_fastrand Coverage Results" MODIFIED="1587059273933" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$main_fast_reduced.coverage" NAME="main_fast_reduced Coverage Results" MODIFIED="1588348228944" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$test.coverage" NAME="test Coverage Results" MODIFIED="1587146236065" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$main_fast_reduced__1_.coverage" NAME="main_fast_reduced (1) Coverage Results" MODIFIED="1588869029492" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/other" />
   </component>
 </project>
