@@ -1,6 +1,7 @@
 import pygame as pg
 import numpy as np
 import random
+import time
 from numba import njit, prange
 
 COLORS = {1: (255, 0, 0), -1: (0, 0, 255), 0: (255, 255, 255)}
@@ -47,12 +48,16 @@ def get_couplings(shape, cur_rad, mass):
     pref_jv = 2 * np.pi * cur_rad * np.sqrt(mass) / shape
     pi_2n = np.pi / (shape * 2)
 
+    sec = lambda y: 1 / np.cos((np.pi / 2) * (2 * y + 1) / (2 * shape))
+    j_hor = lambda y: np.pi * cur_rad / (2 * shape) * sec(y)
+    j_ver = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / shape * sec(y)
+
     for y in range(shape):
-        j_horizontal = pref_jh / np.cos(pi_2n * (y + 0.5))
+        j_horizontal = j_hor(y)  # pref_jh / np.cos(pi_2n * (y + 0.5))
         for x in range(shape):
             js[y, x, 0] = j_horizontal
-            js[y, x, 1] = pref_jv / np.cos(pi_2n * y + pi_2n)
-            js[y, x, 2] = pref_jv / np.cos(pi_2n * y)
+            js[y, x, 1] = j_ver(y)  # pref_jv / np.cos(pi_2n * y + pi_2n)
+            js[y, x, 2] = j_ver(y - 1)  # pref_jv / np.cos(pi_2n * y)
 
             # normalize to max_field
             js[y, x, :] /= np.sum(js[y, x, :]) + js[y, x, 0]
@@ -158,10 +163,11 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
             if event.type == pg.QUIT:
                 run = False
 
+        t1 = time.time()
         for i in range(times):
             update_field(states, js, beta, loops)
             avg_states = (1 - weight) * avg_states + weight * states
-
+        print(time.time()-t1)
         display_field = np.where(avg_states > 0, 1, -1)
         result = display_field == old_display_field
         old_display_field = np.copy(display_field)

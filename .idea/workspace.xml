@@ -68,7 +68,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.triangle_geometry_other">
+  <component name="RunManager" selected="Python.square_geometry">
     <configuration name="main_fast_reduced (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="AdS_CFT_Simulation" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -181,9 +181,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.square_geometry" />
         <item itemvalue="Python.triangle_geometry_other" />
         <item itemvalue="Python.triangle_geometry" />
-        <item itemvalue="Python.square_geometry" />
         <item itemvalue="Python.main_fast_reduced (1)" />
         <item itemvalue="Python.python_version" />
       </list>
@@ -245,6 +245,12 @@
       <workItem from="1589444792449" duration="7539000" />
       <workItem from="1589649845398" duration="173000" />
       <workItem from="1591006466111" duration="1433000" />
+      <workItem from="1591030190054" duration="3628000" />
+      <workItem from="1591089956188" duration="4946000" />
+      <workItem from="1591343938699" duration="3716000" />
+      <workItem from="1591441865602" duration="1191000" />
+      <workItem from="1591445045603" duration="519000" />
+      <workItem from="1591604992239" duration="646000" />
     </task>
     <servers />
   </component>
@@ -268,9 +274,9 @@
     <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$main2.coverage" NAME="main2 Coverage Results" MODIFIED="1587405701367" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$main.coverage" NAME="main Coverage Results" MODIFIED="1587146357023" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$main_fast.coverage" NAME="main_fast Coverage Results" MODIFIED="1587753827433" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$triangle_geometry.coverage" NAME="triangle_geometry Coverage Results" MODIFIED="1589401347853" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$square_geometry.coverage" NAME="square_geometry Coverage Results" MODIFIED="1589187537743" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$triangle_geometry_other.coverage" NAME="triangle_geometry_other Coverage Results" MODIFIED="1589453198519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$triangle_geometry.coverage" NAME="triangle_geometry Coverage Results" MODIFIED="1591093732384" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$square_geometry.coverage" NAME="square_geometry Coverage Results" MODIFIED="1591445486027" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$triangle_geometry_other.coverage" NAME="triangle_geometry_other Coverage Results" MODIFIED="1591347917641" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$python_version.coverage" NAME="python_version Coverage Results" MODIFIED="1588670426623" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$main_fast__1_.coverage" NAME="main_fast (1) Coverage Results" MODIFIED="1588412593030" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/normal" />
     <SUITE FILE_PATH="coverage/AdS_CFT_Simulation$test_uniformity_of_fastrand.coverage" NAME="test_uniformity_of_fastrand Coverage Results" MODIFIED="1587059273933" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

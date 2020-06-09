@@ -64,21 +64,36 @@ def get_couplings(shape, cur_rad, mass):
     Function calculates the coupling constants for each position for its neighbours.
     :return: np.array of shape (N, N, 3). array[y, x, (horizontal | up | down)]
     """
-    js = np.zeros((shape, shape, 3))
-    pref_jh = np.pi * cur_rad / (2 * shape)
-    pref_jv = 2 * np.pi * cur_rad * np.sqrt(mass) / shape
-    pi_2n = np.pi / (shape * 2)
+    js = np.zeros((shape, shape + 2, 3))
+    js.fill(np.NaN)
+
+    n = lambda row: row + 2
+    sec = lambda y: 1 / np.cos((np.pi / 2) * (2 * y + 1) / (2 * shape))
+
+    j_hor = lambda y: sec(y) * np.pi * cur_rad * np.sqrt(1 / (2 * shape)**2 + mass / (n(y)**2))
+    j_ver = lambda y: 2 * np.sqrt(mass) * cur_rad * np.pi / n(y) * sec(y)
+
+    j_hor_alt = lambda y: sec(y) * cur_rad * np.pi / shape
+    j_ver_alt = lambda y: 4 * np.sqrt(mass) * cur_rad * np.pi / n(y) * sec(y)
+
+    j_hor_sq = lambda y: np.pi * cur_rad / (2 * shape) * sec(y)
+    j_ver_sq = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / shape * sec(y)
 
     for y in range(shape):
-        j_horizontal = pref_jh / np.cos(pi_2n * (y + 0.5))
-        for x in range(shape):
+        j_horizontal = j_hor_alt(y)
+        for x in range(y + 2):
             js[y, x, 0] = j_horizontal
-            js[y, x, 1] = pref_jv / np.cos(pi_2n * y + pi_2n)
-            js[y, x, 2] = pref_jv / np.cos(pi_2n * y)
+
+            j_vertical_up = j_ver_alt(y)
+            j_vertical_down = j_ver_alt(y - 1)
+
+            js[y, x, 1] = j_vertical_up
+            js[y, x, 2] = j_vertical_down
 
             # normalize to max_field
             js[y, x, :] /= 2 * np.sum(js[y, x, :])
 
+    np.savetxt("alt_coupling.csv", js[:, 0, :])
     return js
 
 
@@ -200,7 +215,7 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
     :param n: int = number of states in the triangular field
     :param angle: float in [0, 2 * np.pi] = represents connection between the seperated regions
     :param bhs: int in {-1, 1} = state of the black in the center
-    :param mass: float in (0, 1] = mass of the black hole
+    :param mass: float in (0, 1] = mass of the black hole * -1
     :param cur_rad: float = curvature of the AdS space
     :param weight: flaot = weight of one iteration (for low-pass filter [suppresses fluctuations]). Set to 1 to
                            deactivate the filter
@@ -248,8 +263,8 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
 
 
 if __name__ == "__main__":
-    blocksize = 5
-    n = 100
+    blocksize = 2
+    n = 250
     width, height = (n + 1) * blocksize, n * blocksize
     angle = 0.6 * np.pi
     mass = 1

@@ -64,18 +64,18 @@ def get_couplings(shape, cur_rad, mass):
     Function calculates the coupling constants for each position for its neighbours.
     :return: np.array of shape (N, N, 3). array[y, x, (horizontal | up | down)]
     """
-    js = np.zeros((shape, shape, 3))
+    js = np.zeros((shape, shape + 2, 3))
     pref_jh = np.pi * cur_rad / (2 * shape)
     pref_jv = 2 * np.pi * cur_rad * np.sqrt(mass) / shape
     pi_2n = np.pi / (shape * 2)
 
     for y in range(shape):
         j_horizontal = pref_jh / np.cos(pi_2n * (y + 0.5))
-        for x in range(shape):
+        for x in range(y + 2):
             js[y, x, 0] = j_horizontal
             js[y, x, 1] = pref_jv / np.cos(pi_2n * y + pi_2n)
             js[y, x, 2] = pref_jv / np.cos(pi_2n * y)
-
+            print(js[y, x, 2] / js[y, x, 0])
             # normalize to max_field
             js[y, x, :] /= 2 * np.sum(js[y, x, :])
 
@@ -176,8 +176,6 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
     js = get_couplings(n, cur_rad, mass)
 
     display, cell_grid = prepare_pygame(width, height, n, blocksize)
-    for row in cell_grid:
-        print([1 if e != 0 else 0 for e in row])
     display_field = np.where(avg_states > 0, 1, (np.where(avg_states < 0, -1, 0)))
     update_display(cell_grid, display_field != 0, display_field, display)
     old_display_field = np.copy(display_field)
@@ -203,8 +201,8 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
 
 
 if __name__ == "__main__":
-    blocksize = 2
-    n = 10
+    blocksize = 5
+    n = 100
     width, height = (n + 1) * blocksize, n * blocksize
     angle = 0.6 * np.pi
     mass = 1
