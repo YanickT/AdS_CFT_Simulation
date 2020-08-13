@@ -44,23 +44,26 @@ def get_couplings(shape, cur_rad, mass):
     :return: np.array of shape (N, N, 3). array[y, x, (horizontal | up | down)]
     """
     js = np.zeros((shape, shape, 3))
-    pref_jh = np.pi * cur_rad / (2 * shape)
-    pref_jv = 2 * np.pi * cur_rad * np.sqrt(mass) / shape
-    pi_2n = np.pi / (shape * 2)
 
     sec = lambda y: 1 / np.cos((np.pi / 2) * (2 * y + 1) / (2 * shape))
     j_hor = lambda y: np.pi * cur_rad / (2 * shape) * sec(y)
     j_ver = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / shape * sec(y)
 
     for y in range(shape):
-        j_horizontal = j_hor(y)  # pref_jh / np.cos(pi_2n * (y + 0.5))
-        for x in range(shape):
-            js[y, x, 0] = j_horizontal
-            js[y, x, 1] = j_ver(y)  # pref_jv / np.cos(pi_2n * y + pi_2n)
-            js[y, x, 2] = j_ver(y - 1)  # pref_jv / np.cos(pi_2n * y)
+        j_side = j_hor(y)
+        j_up = j_ver(y)
+        j_down = j_ver(y - 1)
 
-            # normalize to max_field
-            js[y, x, :] /= np.sum(js[y, x, :]) + js[y, x, 0]
+        # normalize coupling
+        norm = 2 * j_side + j_up + j_down
+        j_side /= norm
+        j_up /= norm
+        j_down /= norm
+
+        for x in range(shape):
+            js[y, x, 0] = j_side
+            js[y, x, 1] = j_up
+            js[y, x, 2] = j_down
 
     return js
 
@@ -175,10 +178,13 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
         update_display(cell_grid, result, display_field, display)
         pg.display.update()
 
+    np.save("data.csv", display_field)
+    pg.quit()
+
 
 if __name__ == "__main__":
-    blocksize = 2
-    n = 250
+    blocksize = 4
+    n = 125
     width, height = n * blocksize, n * blocksize
     angle = 0.6 * np.pi
     mass = 1
@@ -187,5 +193,5 @@ if __name__ == "__main__":
     loops = n * (n - 1) * 10
     beta = 10
     bhs = -1
-    times = 30
+    times = 5
     main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, blocksize, times)

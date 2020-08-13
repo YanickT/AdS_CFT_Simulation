@@ -62,55 +62,51 @@ def set_boundary(field, angle, black_hole_spin):
 def get_couplings(shape, cur_rad, mass):
     """
     Function calculates the coupling constants for each position for its neighbours.
-    :return: np.array of shape (N, N, 3). array[y, x, (horizontal | up | down)]
+    :return: np.array of shape (N, N, 5). array[y, x, (horizontal | up | up_right |  down | down_left)]
     """
-    js = np.zeros((shape, shape + 2, 3))
+    js = np.zeros((shape, shape + 2, 5))
     js.fill(np.NaN)
 
     n = lambda row: row + 2
     sec = lambda y: 1 / np.cos((np.pi / 2) * (2 * y + 1) / (2 * shape))
 
-    j_hor = lambda y: sec(y) * np.pi * cur_rad * np.sqrt(1 / (2 * shape)**2 + mass / (n(y)**2))
-    j_ver = lambda y: 2 * np.sqrt(mass) * cur_rad * np.pi / n(y) * sec(y)
+    # Hinrichsens method on square geoemetry
+    j_hor = lambda y: np.pi * cur_rad / (2 * shape) * sec(y)
+    j_ver = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / shape * sec(y)
 
-    j_hor_alt = lambda y: sec(y) * cur_rad * np.pi / shape
-    j_ver_alt = lambda y: 4 * np.sqrt(mass) * cur_rad * np.pi / n(y) * sec(y)
-
-    j_hor_sq = lambda y: np.pi * cur_rad / (2 * shape) * sec(y)
-    j_ver_sq = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / shape * sec(y)
+    # geometric coupling
+    n_n = lambda r1, r2: n(r1) / n(r2)
+    c = lambda i, j, r1, r2: int(abs(r1 - r2) == 1) * (
+            max(i, n_n(r1, r2) * (j + 1))
+            + max(i + 1, n_n(r1, r2) * j)
+            - max(i, n_n(r1, r2) * j)
+            - max(i + 1, n_n(r1, r2) * (j + 1)))
 
     for y in range(shape):
-        j_horizontal = j_hor_alt(y)
-        for x in range(y + 2):
-            js[y, x, 0] = j_horizontal
+        j_side = j_hor(y)
+        j_up = j_ver(y)
+        j_down = j_ver(y - 1)
 
-            j_vertical_up = j_ver_alt(y)
-            j_vertical_down = j_ver_alt(y - 1)
+        # normalize the coupling
+        norm = 2 * j_side + j_up + j_down
+        j_side /= norm
+        j_up /= norm
+        j_down /= norm
 
-            js[y, x, 1] = j_vertical_up
-            js[y, x, 2] = j_vertical_down
+        for x in range(n(y)):
+            # horizontal
+            js[y, x, 0] = j_side
+            # up
+            js[y, x, 1] = c(x, x, y, y + 1) # * j_up
+            # up right
+            js[y, x, 2] = c(x, (x + 1) % n(y + 1), y, y + 1) # * j_up
 
-            # normalize to max_field
-            js[y, x, :] /= 2 * np.sum(js[y, x, :])
+            # down
+            js[y, x, 3] = c(x, x, y, y - 1) # * j_down
+            # down left
+            js[y, x, 4] = c(x, (x - 1 + n(y - 1)) % n(y - 1), y, y - 1) # * j_down
 
-    np.savetxt("alt_coupling.csv", js[:, 0, :])
     return js
-
-
-def set_surface(block_width, prob, cell_grid, x, y, rgb, display, pos_x, side):
-    width_ = block_width + int(random.randint(0, 1000) <= int(1000 * prob))
-    area = pg.Surface((width_, blocksize)).convert()
-    area.fill(rgb)
-    cell_grid[y][x] = (area, area.get_rect())
-    if side == "r":
-        cell_grid[y][x][1].center = (pos_x + width_ // 2, y * blocksize)
-    elif side == "l":
-        cell_grid[y][x][1].center = (pos_x - width_ // 2 - width_ % 2, y * blocksize)
-    elif side == "c":
-        cell_grid[y][x][1].center = (pos_x, y * blocksize)
-
-    display.blit(cell_grid[y][x][0], cell_grid[y][x][1])
-    return width_
 
 
 def prepare_pygame(width, height, size, blocksize=5):
@@ -128,42 +124,25 @@ def prepare_pygame(width, height, size, blocksize=5):
 
     cell_grid = [[0 for i in range(size + 2)] for j in range(size)]
     for y in range(size):
+        # calculate the width of a block
         block_width = width // (y + 2)
-        offset = width % (y + 2)
-        prob = offset / (y + 2)
-        x_0 = y // 2 + 1
 
-        pos_x_r = width // 2
-        pos_x_l = width // 2
+        # create list of squares which are bigger
+        larger = [int(round(value)) for value in np.linspace(0, y + 2, width % (y + 2))]
 
-        # if line number is not even than the number of squares is not even => set middle one
-        if y % 2 == 1:
-            width_ = set_surface(block_width, prob, cell_grid, x_0, y, (0, 0, 0), display, width // 2, "c")
-            pos_x_r += width_ // 2 - block_width % 2
-            pos_x_l -= width_ // 2
-            for x in range(1, x_0 + 1):
-                value = int(255 / (y / 2 + 1) * x)
-                color = (value, value, value)
-                # set surface to the right
-                width_ = set_surface(block_width, prob, cell_grid, x_0 + x, y, color, display, pos_x_r, "r")
-                pos_x_r += width_
 
-                # set surface to the left
-                width_ = set_surface(block_width, prob, cell_grid, x_0 - x, y, color, display, pos_x_l, "l")
-                pos_x_l -= width_
-
-        else:
-            for x in range(0, x_0, 1):
-                value = int(255 / (y / 2 + 1) * x)
-                color = (value, value, value)
-
-                # set surface to the right
-                width_ = set_surface(block_width, prob, cell_grid, x_0 + x, y, color, display, pos_x_r, "r")
-                pos_x_r += width_
-
-                # set surface to the left
-                width_ = set_surface(block_width, prob, cell_grid, x_0 - x - 1, y, color, display, pos_x_l, "l")
-                pos_x_l -= width_
+        pos_x = 0
+        for x in range(y + 2):
+            # value = int(255 / (y / 2 + 1) * x)
+            # color = (value, value, value)
+            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            width_ = block_width + int(x in larger)
+            area = pg.Surface((width_, blocksize)).convert()
+            area.fill(color)
+            cell_grid[y][x] = (area, area.get_rect())
+            cell_grid[y][x][1].center = (pos_x + width_ // 2, y * blocksize + blocksize // 2)
+            pos_x += width_
+            display.blit(cell_grid[y][x][0], cell_grid[y][x][1])
 
     return display, cell_grid
 
@@ -187,9 +166,12 @@ def update_field(states, js, beta, loops):
         x_add = (x + 1) % n_x
         x_sub = (x - 1 + n_x) % n_x
 
+        # (horizontal | up | up_right | down | down_left)
         h = js[y, x, 0] * (states[y, x_add] + states[y, x_sub]) + \
-            js[y, x, 1] * (states[y + 1, x] + states[y + 1, x_add]) + \
-            js[y, x, 2] * (states[y - 1, x] + states[y - 1, x_sub])
+            js[y, x, 1] * states[y + 1, x] + \
+            js[y, x, 2] * states[y + 1, x_add] + \
+            js[y, x, 3] * states[y - 1, x] + \
+            js[y, x, 4] * states[y - 1, x_sub]
         states[y, x] = 1 if random.random() < 1 / (1 + np.exp(-2 * beta * h)) else -1
 
 
@@ -235,7 +217,7 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
     js = get_couplings(n, cur_rad, mass)
 
     display, cell_grid = prepare_pygame(width, height, n, blocksize)
-    #while True:
+    # while True:
     #    pg.display.update()
 
     display_field = np.where(avg_states > 0, 1, (np.where(avg_states < 0, -1, 0)))
@@ -261,10 +243,12 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
         update_display(cell_grid, result, display_field, display)
         pg.display.update()
 
+    pg.quit()
+
 
 if __name__ == "__main__":
-    blocksize = 2
-    n = 250
+    blocksize = 4
+    n = 100
     width, height = (n + 1) * blocksize, n * blocksize
     angle = 0.6 * np.pi
     mass = 1
@@ -273,5 +257,5 @@ if __name__ == "__main__":
     loops = int(n / 2 * (n - 1) * 10)
     beta = 10
     bhs = -1
-    times = 30
+    times = 5
     main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, blocksize, times)

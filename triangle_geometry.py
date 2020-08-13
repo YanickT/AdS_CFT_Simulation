@@ -65,19 +65,32 @@ def get_couplings(shape, cur_rad, mass):
     :return: np.array of shape (N, N, 3). array[y, x, (horizontal | up | down)]
     """
     js = np.zeros((shape, shape + 2, 3))
-    pref_jh = np.pi * cur_rad / (2 * shape)
-    pref_jv = 2 * np.pi * cur_rad * np.sqrt(mass) / shape
-    pi_2n = np.pi / (shape * 2)
+    js.fill(np.NaN)
+
+    n = lambda row: row + 2
+    sec = lambda y: 1 / np.cos((np.pi / 2) * (2 * y + 1) / (2 * shape))
+
+    j_hor = lambda y: sec(y) * cur_rad * np.pi / shape
+    j_ver = lambda y: 4 * np.sqrt(mass) * cur_rad * np.pi / n(y) * sec(y)
+
+    j_hor_sq = lambda y: np.pi * cur_rad / (2 * shape) * sec(y)
+    j_ver_sq = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / shape * sec(y)
 
     for y in range(shape):
-        j_horizontal = pref_jh / np.cos(pi_2n * (y + 0.5))
+        j_side = j_hor(y)
+        j_up = j_ver(y)
+        j_down = j_ver(y - 1)
+
+        # normalize the coupling
+        norm = 2 * j_side + 2 * j_up + 2 * j_down
+        j_side /= norm
+        j_up /= norm
+        j_down /= norm
+
         for x in range(y + 2):
-            js[y, x, 0] = j_horizontal
-            js[y, x, 1] = pref_jv / np.cos(pi_2n * y + pi_2n)
-            js[y, x, 2] = pref_jv / np.cos(pi_2n * y)
-            print(js[y, x, 2] / js[y, x, 0])
-            # normalize to max_field
-            js[y, x, :] /= 2 * np.sum(js[y, x, :])
+            js[y, x, 0] = j_side
+            js[y, x, 1] = j_up
+            js[y, x, 2] = j_down
 
     return js
 
