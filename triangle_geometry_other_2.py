@@ -7,6 +7,35 @@ from numba import njit, prange
 COLORS = {1: (255, 0, 0), -1: (0, 0, 255), 0: (255, 255, 255)}
 
 
+@njit(cache=True)
+def fn(r):
+    """
+    Returns the number of fields based on their radial distance
+    :param r: radial distance
+    :return: number of fields at radial distance
+    """
+    return r + 2
+
+
+@njit()
+def geo_couplings(x1, r1, r2):
+    """
+    Calculates the geometric couplings from x1, y1 to the y2 row
+    :param x1: int = spherical position of the updating spin field
+    :param r1: int = radius of the updating spin field
+    :param r2: int = radius of the underlying spin fields
+    :return: np.array, shape == (1, fn(r2)) = Couplings to [0, fn(r2)] in r2
+    """
+    n_n = lambda r1, r2: fn(r1) / fn(r2)
+    c = lambda i, j, r1, r2: int(abs(r1 - r2) == 1) * (
+            max(i, n_n(r1, r2) * (j + 1))
+            + max(i + 1, n_n(r1, r2) * j)
+            - max(i, n_n(r1, r2) * j)
+            - max(i + 1, n_n(r1, r2) * (j + 1)))
+
+    return np.array([c(x1, x2, r1, r2) for x2 in range(fn(r2))])
+
+
 def create_field(size, d_state=-1):
     """
     Creates a field with height N.
@@ -17,10 +46,10 @@ def create_field(size, d_state=-1):
     :param d_state: {-1, 1} = default field state
     :return: np.array, shape == (size, size + 2) = State field of the Ising model
     """
-    field = np.zeros((size, size + 2))
+    field = np.zeros((size, fn(size)))
     field.fill(0)
     for y, row in enumerate(field):
-        for x in range(y + 2):
+        for x in range(fn(y)):
             row[x] = d_state
     return field
 
@@ -34,7 +63,7 @@ def prepare_states(field, mgfield):
     """
     height = field.shape[0]
     for y in range(height):
-        for x in range(y + 2):
+        for x in range(fn(y)):
             if random.random() < (mgfield + 1) / 2:
                 field[y, x] = 1
 
@@ -49,10 +78,10 @@ def set_boundary(field, angle, black_hole_spin):
     """
     ratio = angle / (2 * np.pi)
 
-    field[0, 0] = black_hole_spin
-    field[0, 1] = black_hole_spin
+    for i in range(fn(0)):
+        field[0, i] = black_hole_spin
 
-    for x in range(1 + field.shape[0]):
+    for x in range(fn(field.shape[0] - 1)):
         if abs((2 * x + 1) / field.shape[1] - 1) < ratio:
             field[-1, x] = -1 * black_hole_spin
         else:
@@ -62,49 +91,30 @@ def set_boundary(field, angle, black_hole_spin):
 def get_couplings(shape, cur_rad, mass):
     """
     Function calculates the coupling constants for each position for its neighbours.
-    :return: np.array of shape (N, N, 5). array[y, x, (horizontal | up | up_right |  down | down_left)]
+    :return: np.array of shape (N, N, 3). array[y, x, (horizontal | up | down)]
     """
-    js = np.zeros((shape, shape + 2, 5))
+    js = np.zeros((shape, fn(shape), 3))
     js.fill(np.NaN)
 
-    n = lambda row: row + 2
     sec = lambda y: 1 / np.cos((np.pi / 2) * (2 * y + 1) / (2 * shape))
 
     # Hinrichsens method on square geoemetry
     j_hor = lambda y: np.pi * cur_rad / (2 * shape) * sec(y)
-    j_ver = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / n(y) * sec(y)
+    j_ver_up = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / fn(y) * sec(y)
+    j_ver_down = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / fn(y - 1) * sec(y - 1)
 
-    # geometric coupling
-    n_n = lambda r1, r2: n(r1) / n(r2)
-    c = lambda i, j, r1, r2: int(abs(r1 - r2) == 1) * (
-            max(i, n_n(r1, r2) * (j + 1))
-            + max(i + 1, n_n(r1, r2) * j)
-            - max(i, n_n(r1, r2) * j)
-            - max(i + 1, n_n(r1, r2) * (j + 1)))
-
-    for y in range(shape):
-        j_side = j_hor(y)
-        j_up = j_ver(y)
-        j_down = j_ver(y - 1)
-
-        # normalize the coupling
-        norm = 2 * j_side + j_up + j_down
-        j_side /= norm
-        j_up /= norm
-        j_down /= norm
-
-        for x in range(n(y)):
+    for y in range(1, shape):
+        for x in range(fn(y)):
             # horizontal
-            js[y, x, 0] = j_side
+            js[y, x, 0] = j_hor(y)
             # up
-            js[y, x, 1] = c(x, x, y, y + 1) * j_up
-            # up right
-            js[y, x, 2] = c(x, (x + 1) % n(y + 1), y, y + 1) * j_up
-
+            js[y, x, 1] = j_ver_up(y)
             # down
-            js[y, x, 3] = c(x, x, y, y - 1) * j_down
-            # down left
-            js[y, x, 4] = c(x, (x - 1 + n(y - 1)) % n(y - 1), y, y - 1) * j_down
+            js[y, x, 2] = j_ver_down(y)
+
+            # normalize the coupling
+            norm = 2 * js[y, x, 0] + js[y, x, 1] + js[y, x, 2]
+            js[y, x, :] /= norm
 
     return js
 
@@ -122,17 +132,16 @@ def prepare_pygame(width, height, size, blocksize=5):
     pg.display.set_caption('Ryu-Takayanagi Ising Simulator using Pygame')
     display = pg.display.set_mode((width, height))
 
-    cell_grid = [[0 for i in range(size + 2)] for j in range(size)]
+    cell_grid = [[0 for i in range(fn(size))] for j in range(size)]
     for y in range(size):
         # calculate the width of a block
-        block_width = width // (y + 2)
+        block_width = width // fn(y)
 
         # create list of squares which are bigger
-        larger = [int(round(value)) for value in np.linspace(0, y + 2, width % (y + 2))]
-
+        larger = [int(round(value)) for value in np.linspace(0, fn(y), width % fn(y))]
 
         pos_x = 0
-        for x in range(y + 2):
+        for x in range(fn(y)):
             # value = int(255 / (y / 2 + 1) * x)
             # color = (value, value, value)
             color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -148,6 +157,7 @@ def prepare_pygame(width, height, size, blocksize=5):
 
 
 @njit(parallel=True)
+# @njit()
 def update_field(states, js, beta, loops):
     """
     Update loops random selected states in the Ising model. Performance boost using jit-numba with parallelization of
@@ -161,17 +171,13 @@ def update_field(states, js, beta, loops):
     size = states.shape[0]
     for i in prange(loops):
         y = int(random.random() * (size - 2) + 1)
-        n_x = y + 2
+        n_x = fn(y)
         x = int(random.random() * n_x)
-        x_add = (x + 1) % n_x
-        x_sub = (x - 1 + n_x) % n_x
 
-        # (horizontal | up | up_right | down | down_left)
-        h = js[y, x, 0] * (states[y, x_add] + states[y, x_sub]) + \
-            js[y, x, 1] * states[y + 1, x] + \
-            js[y, x, 2] * states[y + 1, x_add] + \
-            js[y, x, 3] * states[y - 1, x] + \
-            js[y, x, 4] * states[y - 1, x_sub]
+        # (horizontal | up | down)
+        h = js[y, x, 0] * (states[y, (x + 1) % n_x] + states[y, (x - 1 + n_x) % n_x]) + \
+            np.sum(np.multiply(np.multiply(geo_couplings(x, y, y + 1), js[y, x, 1]), states[:fn(y + 1), x])) + \
+            np.sum(np.multiply(np.multiply(geo_couplings(x, y, y - 1), js[y, x, 2]), states[:fn(y - 1), x]))
         states[y, x] = 1 if random.random() < 1 / (1 + np.exp(-2 * beta * h)) else -1
 
 
@@ -185,8 +191,12 @@ def update_display(cell_grid, result, display_field, display):
     :return: void
     """
     for pos in np.argwhere(result):
-        cell_grid[pos[0]][pos[1]][0].fill(COLORS[display_field[pos[0], pos[1]]])
-        display.blit(cell_grid[pos[0]][pos[1]][0], cell_grid[pos[0]][pos[1]][1])
+        try:
+            cell_grid[pos[0]][pos[1]][0].fill(COLORS[display_field[pos[0], pos[1]]])
+            display.blit(cell_grid[pos[0]][pos[1]][0], cell_grid[pos[0]][pos[1]][1])
+        except:
+            print(pos)
+            input()
 
 
 def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, blocksize, times):
@@ -247,13 +257,16 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
 
 
 if __name__ == "__main__":
+    print(geo_couplings(0, 1, 0))
+    print(geo_couplings(1, 1, 0))
+    print(geo_couplings(2, 1, 0))
     blocksize = 4
     n = 100
     width, height = (n + 1) * blocksize, n * blocksize
     angle = 0.6 * np.pi
     mass = 1
     cur_rad = 1
-    weight = 0.01
+    weight = 1
     loops = int(n / 2 * (n - 1) * 10)
     beta = 10
     bhs = -1
