@@ -6,6 +6,9 @@ from numba import njit, prange
 
 COLORS = {1: (255, 0, 0), -1: (0, 0, 255), 0: (255, 255, 255)}
 
+"""
+Downcoupling funktioniert nicht
+"""
 
 @njit(cache=True)
 def fn(r):
@@ -176,8 +179,8 @@ def update_field(states, js, beta, loops):
 
         # (horizontal | up | down)
         h = js[y, x, 0] * (states[y, (x + 1) % n_x] + states[y, (x - 1 + n_x) % n_x]) + \
-            np.sum(np.multiply(np.multiply(geo_couplings(x, y, y + 1), js[y, x, 1]), states[:fn(y + 1), x])) + \
-            np.sum(np.multiply(np.multiply(geo_couplings(x, y, y - 1), js[y, x, 2]), states[:fn(y - 1), x]))
+            np.sum(np.multiply(np.multiply(geo_couplings(x, y, y + 1), js[y, x, 1]), states[y + 1, :fn(y + 1)])) + \
+            np.sum(np.multiply(np.multiply(geo_couplings(x, y, y - 1), js[y, x, 2]), states[y - 1, :fn(y - 1)]))
         states[y, x] = 1 if random.random() < 1 / (1 + np.exp(-2 * beta * h)) else -1
 
 
@@ -257,9 +260,12 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
 
 
 if __name__ == "__main__":
-    print(geo_couplings(0, 1, 0))
-    print(geo_couplings(1, 1, 0))
-    print(geo_couplings(2, 1, 0))
+
+    r1 = 4
+    r2 = 5
+    for i in range(fn(r2)):
+        print(geo_couplings(i, r1, r2), end="\n\n")
+
     blocksize = 4
     n = 100
     width, height = (n + 1) * blocksize, n * blocksize
