@@ -17,7 +17,7 @@ def fn(r):
     :param r: radial distance
     :return: number of fields at radial distance
     """
-    return r + 2
+    return 4 * r + 4
 
 
 @njit()
@@ -103,21 +103,23 @@ def get_couplings(shape, cur_rad, mass):
 
     # Hinrichsens method on square geoemetry
     j_hor = lambda y: np.pi * cur_rad / (2 * shape) * sec(y)
-    j_ver_up = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / fn(y) * sec(y)
-    j_ver_down = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / fn(y - 1) * sec(y - 1)
+    j_ver = lambda y: 2 * np.pi * np.sqrt(mass) * cur_rad / fn(y) * sec(y)
 
     for y in range(1, shape):
-        for x in range(fn(y)):
-            # horizontal
-            js[y, x, 0] = j_hor(y)
-            # up
-            js[y, x, 1] = j_ver_up(y)
-            # down
-            js[y, x, 2] = j_ver_down(y)
+        j_side = j_hor(y)
+        j_up = j_ver(y)
+        j_down = j_ver(y - 1)
 
-            # normalize the coupling
-            norm = 2 * js[y, x, 0] + js[y, x, 1] + js[y, x, 2]
-            js[y, x, :] /= norm
+        # normalize coupling
+        norm = 2 * j_side + j_up + j_down
+        j_side /= norm
+        j_up /= norm
+        j_down /= norm
+
+        for x in range(fn(y)):
+            js[y, x, 0] = j_side
+            js[y, x, 1] = j_up
+            js[y, x, 2] = j_down
 
     return js
 
@@ -159,8 +161,7 @@ def prepare_pygame(width, height, size, blocksize=5):
     return display, cell_grid
 
 
-@njit(parallel=True)
-# @njit()
+@njit()
 def update_field(states, js, beta, loops):
     """
     Update loops random selected states in the Ising model. Performance boost using jit-numba with parallelization of
@@ -179,8 +180,9 @@ def update_field(states, js, beta, loops):
 
         # (horizontal | up | down)
         h = js[y, x, 0] * (states[y, (x + 1) % n_x] + states[y, (x - 1 + n_x) % n_x]) + \
-            np.sum(np.multiply(np.multiply(geo_couplings(x, y, y + 1), js[y, x, 1]), states[y + 1, :fn(y + 1)])) + \
+            np.sum(np.multiply(np.multiply(geo_couplings(x, y, y + 1), states[y + 1, :fn(y + 1)]), js[y, x, 1])) + \
             np.sum(np.multiply(np.multiply(geo_couplings(x, y, y - 1), js[y, x, 2]), states[y - 1, :fn(y - 1)]))
+
         states[y, x] = 1 if random.random() < 1 / (1 + np.exp(-2 * beta * h)) else -1
 
 
@@ -194,12 +196,8 @@ def update_display(cell_grid, result, display_field, display):
     :return: void
     """
     for pos in np.argwhere(result):
-        try:
-            cell_grid[pos[0]][pos[1]][0].fill(COLORS[display_field[pos[0], pos[1]]])
-            display.blit(cell_grid[pos[0]][pos[1]][0], cell_grid[pos[0]][pos[1]][1])
-        except:
-            print(pos)
-            input()
+        cell_grid[pos[0]][pos[1]][0].fill(COLORS[display_field[pos[0], pos[1]]])
+        display.blit(cell_grid[pos[0]][pos[1]][0], cell_grid[pos[0]][pos[1]][1])
 
 
 def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, blocksize, times):
@@ -242,6 +240,7 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 run = False
+                np.save("triangle_field", display_field)
 
         t1 = time.time()
         for i in range(times):
@@ -260,21 +259,15 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
 
 
 if __name__ == "__main__":
-
-    r1 = 4
-    r2 = 5
-    for i in range(fn(r2)):
-        print(geo_couplings(i, r1, r2), end="\n\n")
-
-    blocksize = 4
-    n = 100
+    blocksize = 2
+    n = 256
     width, height = (n + 1) * blocksize, n * blocksize
     angle = 0.6 * np.pi
     mass = 1
     cur_rad = 1
     weight = 1
     loops = int(n / 2 * (n - 1) * 10)
-    beta = 10
+    beta = 6
     bhs = -1
     times = 5
     main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, blocksize, times)

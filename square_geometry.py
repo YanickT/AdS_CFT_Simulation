@@ -96,7 +96,7 @@ def prepare_pygame(width, height, size, blocksize=5):
     return display, cell_grid
 
 
-@njit(parallel=True)
+@njit()
 def update_field(states, js, beta, loops):
     """
     Update loops random selected states in the Ising model. Performance boost using jit-numba with parallelization of
@@ -165,13 +165,14 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 run = False
+                np.save("square_field", display_field)
 
         t1 = time.time()
         for i in range(times):
             update_field(states, js, beta, loops)
             avg_states = (1 - weight) * avg_states + weight * states
         print(time.time()-t1)
-        display_field = np.where(avg_states > 0, 1, -1)
+        display_field = np.where(avg_states >= 0, 1, -1)
         result = display_field == old_display_field
         old_display_field = np.copy(display_field)
 
@@ -183,15 +184,30 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
 
 
 if __name__ == "__main__":
-    blocksize = 4
-    n = 125
+    blocksize = 2
+    n = 256
     width, height = n * blocksize, n * blocksize
     angle = 0.6 * np.pi
     mass = 1
     cur_rad = 1
-    weight = 0.01
+    weight = 1
     loops = n * (n - 1) * 10
-    beta = 10
+    beta = 6
     bhs = -1
     times = 5
     main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, blocksize, times)
+
+"""// Initialize horizontal couplings
+    for (int i=0; i<N; ++i) for (int j=0; j<N; ++j)
+    {
+        double eta=pi/2*(j+0.5)/N, deta=pi/2/N;
+        J[0][i][j] = J[1][i][j] = l*deta/cos(eta);
+		// symmetrik coupling in left and right since it only depends on the radial distance to the blackhole
+    }
+
+    // Initialize vertical couplings
+    for (int i=0; i<N; ++i) for (int j=1; j<N; ++j)
+    {
+        double eta=pi/2*(j)/N, dphi=2*pi/N;
+        J[3][i][j-1] = J[2][i][j] = RH*dphi/cos(eta);
+    }"""
