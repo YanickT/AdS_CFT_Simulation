@@ -4,12 +4,13 @@ import random
 import time
 from numba import njit, prange
 
+
+# colors for the simulation: 1: RED, -1: BLUE, 0: BLACK
 COLORS = {1: (255, 0, 0), -1: (0, 0, 255), 0: (255, 255, 255)}
 
-"""
-Downcoupling funktioniert nicht
-"""
 
+# time critical function. Use numba to speed things up
+# Due to multiple calls with same input/output use cache
 @njit(cache=True)
 def fn(r):
     """
@@ -20,7 +21,10 @@ def fn(r):
     return 4 * r + 4
 
 
-@njit()
+
+# time critical function. Use numba to speed things up
+# Due to multiple calls with same input/output use cache
+@njit(cache=True)
 def geo_couplings(x1, r1, r2):
     """
     Calculates the geometric couplings from x1, y1 to the y2 row
@@ -133,11 +137,15 @@ def prepare_pygame(width, height, size, blocksize=5):
     :param blocksize: int = length of edge of single state square in field
     :return: List[List[(pg.Surface, pg.Rect)]] = Grid of cells (for each state one)
     """
+    # create GUI
     pg.init()
+    pg.font.init()
     pg.display.set_caption('Ryu-Takayanagi Ising Simulator using Pygame')
     display = pg.display.set_mode((width, height))
 
-    cell_grid = [[0 for i in range(fn(size))] for j in range(size)]
+    # create cells (for spins) in GUI
+    # cell_grid is a 2D array with temp as line
+    cell_grid = [[0 for i in range(fn(j))] for j in range(size)]
     for y in range(size):
         # calculate the width of a block
         block_width = width // fn(y)
@@ -147,9 +155,8 @@ def prepare_pygame(width, height, size, blocksize=5):
 
         pos_x = 0
         for x in range(fn(y)):
-            # value = int(255 / (y / 2 + 1) * x)
-            # color = (value, value, value)
-            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) # <--------------
+            # create a surface for each rectangle (this will only be updated if necessary)
             width_ = block_width + int(x in larger)
             area = pg.Surface((width_, blocksize)).convert()
             area.fill(color)
@@ -161,6 +168,7 @@ def prepare_pygame(width, height, size, blocksize=5):
     return display, cell_grid
 
 
+# time critical function. Use numba to speed things up
 @njit()
 def update_field(states, js, beta, loops):
     """
@@ -178,7 +186,6 @@ def update_field(states, js, beta, loops):
         n_x = fn(y)
         x = int(random.random() * n_x)
 
-        # (horizontal | up | down)
         h = js[y, x, 0] * (states[y, (x + 1) % n_x] + states[y, (x - 1 + n_x) % n_x]) + \
             np.sum(np.multiply(np.multiply(geo_couplings(x, y, y + 1), states[y + 1, :fn(y + 1)]), js[y, x, 1])) + \
             np.sum(np.multiply(np.multiply(geo_couplings(x, y, y - 1), js[y, x, 2]), states[y - 1, :fn(y - 1)]))
@@ -224,45 +231,111 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
     prepare_states(states, -0.7)
     set_boundary(states, angle, bhs)
 
-    avg_states = np.copy(states)
+    # initialise coupling array
     js = get_couplings(n, cur_rad, mass)
+    
+    # copy stats for low-pass filter
+    avg_states = np.copy(states)
 
+    # initialise GUI objects
     display, cell_grid = prepare_pygame(width, height, n, blocksize)
-    # while True:
-    #    pg.display.update()
-
     display_field = np.where(avg_states > 0, 1, (np.where(avg_states < 0, -1, 0)))
     update_display(cell_grid, display_field != 0, display_field, display)
     old_display_field = np.copy(display_field)
 
+    # while True:
+    #     pg.display.update()
+    #     pg.image.save(display, "pixel_mapping.png")
+
+    # text fields for infomations
+    time_txt = pg.font.SysFont('Courier New', 12)
+    beta_txt = pg.font.SysFont('Courier New', 12)
+    weight_txt = pg.font.SysFont('Courier New', 12)
+
+    beta_img = beta_txt.render(f"beta: {'0' * (2 - len(str(beta))) + str(beta)}", False, (0, 0, 0), COLORS[-1])
+    weight_img = weight_txt.render(f"weight: {weight:0.1f}", 0, (0, 0, 0), COLORS[-1])
+
+
     run = True
     while run:
+
+        # GUI management
         for event in pg.event.get():
+            # close the GUI
             if event.type == pg.QUIT:
                 run = False
-                np.save("triangle_field", display_field)
 
+            # if button is pressed
+            if event.type == pg.KEYDOWN:
+
+                # change beta (temperature)
+                if event.key == 273:  # arrow up
+                    beta += 1
+                    beta_img = beta_txt.render(f"beta: {'0' * (2 - len(str(beta))) + str(beta)}", False, (0, 0, 0),
+                                               COLORS[-1])
+                elif event.key == 274:  # arrow down
+                    beta = max(beta - 1, 0)
+                    beta_img = beta_txt.render(f"beta: {'0' * (2 - len(str(beta))) + str(beta)}", False, (0, 0, 0),
+                                               COLORS[-1])
+
+                # weight (low-pass filter)
+                elif event.key == 119:  # w
+                    weight = min(weight + 0.1, 1)
+                    weight_img = weight_txt.render(f"weight: {weight:0.1f}", 0, (0, 0, 0), COLORS[-1])
+                elif event.key == 115:  # s
+                    weight = max(weight - 0.1, 0.1)
+                    weight_img = weight_txt.render(f"weight: {weight:0.1f}", 0, (0, 0, 0), COLORS[-1])
+
+                # save image
+                elif event.key == 112: # p
+                    pg.image.save(display, "triangle_field.png")
+
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    evx, evy = event.pos
+                    rs = []
+                    for y in range(len(cell_grid)):
+                        for x in range(len(cell_grid[y])):
+                            cx, cy = cell_grid[y][x][1].center
+                            rs.append(((cx - evx)**2 + (cy - evy)**2, (y, x)))
+
+                    rs.sort(key=lambda x: x[0])
+                    fy, fx = rs[0][1]
+                    states[fy, fx] = 1
+                    print(f"Set at {fy}, {fx}")
+
+        # update field
         t1 = time.time()
         for i in range(times):
             update_field(states, js, beta, loops)
+            # apply low-pass filter (IIR)
             avg_states = (1 - weight) * avg_states + weight * states
-        print(time.time() - t1)
+        time_img = time_txt.render(f"dt: {time.time() - t1:.2f}", False, (0, 0, 0), COLORS[-1])
 
+        # map avg_states (non integer) to spin states {-1, 1}
         display_field = np.where(avg_states > 0, 1, (np.where(avg_states < 0, -1, 0)))
+        # check which fields change their state
         result = display_field != old_display_field
         old_display_field = np.copy(display_field)
 
+        # update states
         update_display(cell_grid, result, display_field, display)
+
+        # update information fields
+        display.blit(time_img, (30, 30))
+        display.blit(beta_img, (30, 50))
+        display.blit(weight_img, (30, 70))
+
         pg.display.update()
 
     pg.quit()
 
 
 if __name__ == "__main__":
-    blocksize = 2
-    n = 256
+    blocksize = 20
+    n = 20
     width, height = (n + 1) * blocksize, n * blocksize
-    angle = 0.6 * np.pi
+    angle = 0.66 * np.pi
     mass = 1
     cur_rad = 1
     weight = 1

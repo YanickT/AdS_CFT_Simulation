@@ -4,6 +4,8 @@ import random
 import time
 from numba import njit, prange
 
+
+# colors for the simulation: 1: RED, -1: BLUE, 0: WHITE
 COLORS = {1: (255, 0, 0), -1: (0, 0, 255), 0: (255, 255, 255)}
 
 
@@ -77,10 +79,14 @@ def prepare_pygame(width, height, size, blocksize=5):
     :param blocksize: int = length of edge of single state square in field
     :return: List[List[(pg.Surface, pg.Rect)]] = Grid of cells (for each state one)
     """
+
+    # create GUI
     pg.init()
     pg.display.set_caption('Ryu-Takayanagi Ising Simulator using Pygame')
     display = pg.display.set_mode((width, height))
 
+    # create cells (for spins) in GUI
+    # cell_grid is a 2D array with temp as line
     cell_grid = []
     for y in range(size):
         temp = []
@@ -96,6 +102,7 @@ def prepare_pygame(width, height, size, blocksize=5):
     return display, cell_grid
 
 
+# time critical function. Use numba to speed things up
 @njit()
 def update_field(states, js, beta, loops):
     """
@@ -153,61 +160,59 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
     prepare_states(states, -0.7)
     set_boundary(states, angle, bhs)
 
-    avg_states = np.copy(states)
+    # initialise coupling array
     js = get_couplings(n, cur_rad, mass)
 
+    # copy stats for low-pass filter
+    avg_states = np.copy(states)
+
+    # initialise GUI objects
     display, cell_grid = prepare_pygame(width, height, n, blocksize)
     display_field = np.where(avg_states > 0, 1, -1)
     old_display_field = np.copy(display_field)
 
     run = True
     while run:
+
+        # GUI management
         for event in pg.event.get():
+            # close the GUI
             if event.type == pg.QUIT:
                 run = False
-                np.save("square_field", display_field)
 
-        t1 = time.time()
+            # save image
+            elif event.type == pg.KEYDOWN and event.key == 112:
+                    pg.image.save(display, "square_field.png")
+
+        # update field
         for i in range(times):
             update_field(states, js, beta, loops)
+            # apply low-pass filter (IIR)
             avg_states = (1 - weight) * avg_states + weight * states
-        print(time.time()-t1)
+
+        # map avg_states (non integer) to spin states {-1, 1}
         display_field = np.where(avg_states >= 0, 1, -1)
+        # check which fields change their state
         result = display_field == old_display_field
         old_display_field = np.copy(display_field)
 
+        # update GUI
         update_display(cell_grid, result, display_field, display)
         pg.display.update()
 
-    np.save("data.csv", display_field)
     pg.quit()
 
 
 if __name__ == "__main__":
-    blocksize = 2
-    n = 256
+    blocksize = 1
+    n = 512
     width, height = n * blocksize, n * blocksize
-    angle = 0.6 * np.pi
+    angle = 0.67 * np.pi
     mass = 1
     cur_rad = 1
-    weight = 1
+    weight = 0.005
     loops = n * (n - 1) * 10
-    beta = 6
+    beta = 5
     bhs = -1
     times = 5
     main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, blocksize, times)
-
-"""// Initialize horizontal couplings
-    for (int i=0; i<N; ++i) for (int j=0; j<N; ++j)
-    {
-        double eta=pi/2*(j+0.5)/N, deta=pi/2/N;
-        J[0][i][j] = J[1][i][j] = l*deta/cos(eta);
-		// symmetrik coupling in left and right since it only depends on the radial distance to the blackhole
-    }
-
-    // Initialize vertical couplings
-    for (int i=0; i<N; ++i) for (int j=1; j<N; ++j)
-    {
-        double eta=pi/2*(j)/N, dphi=2*pi/N;
-        J[3][i][j-1] = J[2][i][j] = RH*dphi/cos(eta);
-    }"""
