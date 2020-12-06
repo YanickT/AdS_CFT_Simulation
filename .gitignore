@@ -1,8 +1,11 @@
+# Pycharm
 .idea
-__pycache__
 venv
-old_versions
-normal
-other
+__pycache__
 
-.gitattributes
+# other
+normal
+old_versions
+
+# C-API Project
+fastcalc
