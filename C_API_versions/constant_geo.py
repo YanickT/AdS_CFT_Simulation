@@ -18,10 +18,8 @@ L = 5
 N = 250
 M = 1
 LOOPS = N * (N+1)
-print(f"Elements: {LOOPS}")
-
 RH = L * math.sqrt(M)
-print("EVTL NOCH FEHLER BEI RH SOLL: RH = L * \sqrt{M}")
+
 
 def create_field(size, d_state=-1):
     """
