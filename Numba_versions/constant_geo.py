@@ -243,10 +243,6 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
     update_display(cell_grid, display_field != 0, display_field, display)
     old_display_field = np.copy(display_field)
 
-    # while True:
-    #     pg.display.update()
-    #     pg.image.save(display, "pixel_mapping.png")
-
     # text fields for infomations
     time_txt = pg.font.SysFont('Courier New', 12)
     beta_txt = pg.font.SysFont('Courier New', 12)
@@ -289,20 +285,6 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
                 # save image
                 elif event.key == 112: # p
                     pg.image.save(display, "triangle_field.png")
-
-            elif event.type == pg.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    evx, evy = event.pos
-                    rs = []
-                    for y in range(len(cell_grid)):
-                        for x in range(len(cell_grid[y])):
-                            cx, cy = cell_grid[y][x][1].center
-                            rs.append(((cx - evx)**2 + (cy - evy)**2, (y, x)))
-
-                    rs.sort(key=lambda x: x[0])
-                    fy, fx = rs[0][1]
-                    states[fy, fx] = 1
-                    print(f"Set at {fy}, {fx}")
 
         # update field
         t1 = time.time()
