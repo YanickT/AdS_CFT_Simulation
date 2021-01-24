@@ -2,7 +2,8 @@ import pygame as pg
 import numpy as np
 import random
 import time
-from numba import njit, prange
+from numba import njit, prange 
+# ATTENTION: numba is currently not working with python Version 3.9. Use 3.8 instead!
 
 
 # colors for the simulation: 1: RED, -1: BLUE, 0: BLACK
@@ -282,7 +283,7 @@ def main(width, height, n, angle, bhs, mass, cur_rad, weight, beta, loops, block
                     weight = max(weight - 0.1, 0.1)
                     weight_img = weight_txt.render(f"weight: {weight:0.1f}", 0, (0, 0, 0), COLORS[-1])
 
-                # save image
+                # save image of the current states
                 elif event.key == 112: # p
                     pg.image.save(display, "triangle_field.png")
 
